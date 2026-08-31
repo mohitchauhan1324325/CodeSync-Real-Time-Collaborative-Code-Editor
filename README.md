@@ -556,12 +556,6 @@ The current architecture supports horizontal scaling with these enhancements for
 
 ---
 
-## License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
 <div align="center">
 
 Built with ❤️ as a production-quality portfolio project demonstrating full-stack software engineering skills.
