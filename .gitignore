@@ -1,0 +1,39 @@
+# CodeSync — .gitignore
+
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env.production
+.env.development
+**/.env
+**/.env.local
+**/.env.production
+
+# Build outputs
+dist/
+build/
+client/dist/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+
+# Docker volumes
+mongo_data/

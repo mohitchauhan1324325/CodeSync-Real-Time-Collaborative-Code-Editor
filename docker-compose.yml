@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: codesync_mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: codesync
+    networks:
+      - codesync_net
+
+  # CodeSync Backend API + Socket.io
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: codesync_server
+    restart: always
+    ports:
+      - '5000:5000'
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/codesync
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      JUDGE0_API_KEY: ${JUDGE0_API_KEY:-}
+      JUDGE0_API_URL: ${JUDGE0_API_URL:-https://judge0-ce.p.rapidapi.com}
+    depends_on:
+      - mongo
+    networks:
+      - codesync_net
+
+  # CodeSync React Frontend (Served by NGINX)
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: codesync_client
+    restart: always
+    ports:
+      - '3000:80'
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+      VITE_SOCKET_URL: http://localhost:5000
+    depends_on:
+      - server
+    networks:
+      - codesync_net
+
+volumes:
+  mongo_data:
+
+networks:
+  codesync_net:
+    driver: bridge

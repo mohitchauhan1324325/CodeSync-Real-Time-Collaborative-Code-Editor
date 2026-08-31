@@ -1,0 +1,12 @@
+{
+  "name": "codesync-workspace",
+  "version": "1.0.0",
+  "description": "CodeSync — Real-Time Collaborative Code Editor",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
+    "start:server": "npm --prefix server start"
+  }
+}
