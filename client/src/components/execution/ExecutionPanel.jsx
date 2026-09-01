@@ -29,6 +29,17 @@ export default function ExecutionPanel({
   const [activeTab, setActiveTab] = useState('output'); // 'output' | 'input'
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Determine badge colour based on Judge0 status label
+  const getStatusColor = (status) => {
+    if (!status) return 'bg-dark-700 text-dark-300';
+    const s = status.toLowerCase();
+    if (s === 'accepted') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (s.includes('queue') || s.includes('processing')) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    if (s === 'success') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    return 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+  };
+
+
   if (!isOpen) {
     return (
       <div className="h-9 bg-dark-850 border-t border-dark-700 px-4 flex items-center justify-between text-xs shrink-0 z-20">
@@ -43,23 +54,24 @@ export default function ExecutionPanel({
 
         {executionResult && (
           <div className="flex items-center space-x-3 text-[11px] font-mono">
-            <span
-              className={`px-2 py-0.5 rounded ${
-                executionResult.status === 'Accepted' || executionResult.status === 'Success'
-                  ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'bg-rose-500/20 text-rose-400'
-              }`}
-            >
+            <span className={`px-2 py-0.5 rounded border ${getStatusColor(executionResult.status)}`}>
               {executionResult.status}
             </span>
-            <span className="text-dark-400">{executionResult.executionTime}ms</span>
+            {executionResult.executionTime > 0 && (
+              <span className="text-dark-400">{executionResult.executionTime}ms</span>
+            )}
           </div>
         )}
       </div>
     );
   }
 
-  const hasOutput = executionResult && (executionResult.stdout || executionResult.stderr || executionResult.compileOutput);
+  const hasOutput = executionResult && (
+    executionResult.stdout ||
+    executionResult.stderr ||
+    executionResult.compileOutput ||
+    executionResult.status === 'No Execution Engine'
+  );
 
   return (
     <div
@@ -154,18 +166,25 @@ export default function ExecutionPanel({
             ) : hasOutput ? (
               <div className="space-y-2">
                 {/* Status description */}
-                {executionResult.status && (
+                {executionResult.status && executionResult.status !== 'No Execution Engine' && (
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-[11px] uppercase font-bold text-dark-400">Exit Status:</span>
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${
-                        executionResult.status === 'Accepted' || executionResult.status === 'Success'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                      }`}
-                    >
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded border ${getStatusColor(executionResult.status)}`}>
                       {executionResult.status}
                     </span>
+                  </div>
+                )}
+
+                {/* No Execution Engine notice */}
+                {executionResult.status === 'No Execution Engine' && (
+                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/25 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="text-xs font-bold text-amber-400">Judge0 API Key Required</span>
+                    </div>
+                    <pre className="text-amber-300/80 text-[11px] whitespace-pre-wrap leading-relaxed">
+                      {executionResult.stderr}
+                    </pre>
                   </div>
                 )}
 
